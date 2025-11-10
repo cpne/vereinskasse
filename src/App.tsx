@@ -135,7 +135,7 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-900">
       <header className="flex-shrink-0 bg-gray-800 shadow-md z-10">
-        <nav className="container mx-auto px-4 py-2 flex flex-col sm:flex-row justify-between items-center gap-2">
+        <nav className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-2 flex flex-col sm:flex-row justify-between items-center gap-2">
             <div className="flex-shrink-0 flex items-center gap-2 text-white">
                 <CalendarDaysIcon className="h-6 w-6 text-indigo-400"/>
                 <select 
