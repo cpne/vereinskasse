@@ -5,7 +5,7 @@ import ProductManagement from './components/ProductManagement';
 import POSView from './components/POSView';
 import DailyReport from './components/DailyReport';
 import OrdersView from './components/OrdersView';
-import { ShoppingCartIcon, Cog6ToothIcon, ChartBarIcon, ClipboardDocumentListIcon, CalendarDaysIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { ShoppingCartIcon, Cog6ToothIcon, ChartBarIcon, ClipboardDocumentListIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 type View = 'pos' | 'admin' | 'report' | 'orders';
 
@@ -137,7 +137,6 @@ const App: React.FC = () => {
       <header className="flex-shrink-0 bg-gray-800 shadow-md z-10">
         <nav className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-2 flex flex-col sm:flex-row justify-between items-center gap-2">
             <div className="flex-shrink-0 flex items-center gap-2 text-white">
-                <CalendarDaysIcon className="h-6 w-6 text-indigo-400"/>
                 <select 
                     value={activeEventId ?? ''} 
                     onChange={e => setActiveEventId(e.target.value || null)}
