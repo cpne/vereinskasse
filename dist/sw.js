@@ -1,93 +1,147 @@
-const CACHE_NAME = 'vereinskasse-cache-v2';
+// Service Worker Version - wird bei jedem Update erhöht
+const SW_VERSION = '3';
+const CACHE_NAME = `vereinskasse-cache-v${SW_VERSION}`;
 const BASE_PATH = '/vereinskasse/';
 
-// URLs to cache - these will be the built assets
+// URLs to cache during install
 const urlsToCache = [
   BASE_PATH,
   `${BASE_PATH}index.html`,
-  `${BASE_PATH}assets/`,
-  'https://cdn.tailwindcss.com',
 ];
 
+// Install Event - neuer Service Worker wird installiert
 self.addEventListener('install', event => {
+  console.log(`[SW] Installing Service Worker v${SW_VERSION}`);
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
-        // Don't cache external URLs during install - they'll be cached on fetch
-        return cache.addAll(urlsToCache.filter(url => !url.startsWith('http')));
+        console.log('[SW] Cache opened:', CACHE_NAME);
+        // Nur kritische Dateien beim Install cachen
+        return cache.addAll(urlsToCache);
       })
       .catch(err => {
-        console.error('Cache install failed:', err);
+        console.error('[SW] Cache install failed:', err);
       })
   );
-  // Force the waiting service worker to become the active service worker
+  
+  // Sofort aktivieren - keine Wartezeit
   self.skipWaiting();
 });
 
+// Activate Event - alter Service Worker wird entfernt
 self.addEventListener('activate', event => {
+  console.log(`[SW] Activating Service Worker v${SW_VERSION}`);
+  
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Lösche alte Caches
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('[SW] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Übernehme sofort die Kontrolle über alle Clients
+      self.clients.claim()
+    ])
   );
-  // Take control of all clients immediately
-  return self.clients.claim();
 });
 
+// Fetch Event - handle all network requests
 self.addEventListener('fetch', event => {
-  // Only handle requests for our domain
-  if (!event.request.url.startsWith(self.location.origin)) {
+  const url = new URL(event.request.url);
+  
+  // Nur Requests für unsere Domain behandeln
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+  
+  // Service Worker selbst nicht cachen
+  if (event.request.url.includes('/sw.js')) {
     return;
   }
 
+  // Network First Strategy für HTML und JS - immer frische Versionen
+  if (event.request.destination === 'document' || 
+      event.request.destination === 'script' ||
+      event.request.url.includes('/assets/')) {
+    
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Wenn erfolgreich, cache die Antwort
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                cache.put(event.request, responseToCache);
+              })
+              .catch(err => {
+                console.error('[SW] Cache put failed:', err);
+              });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Falls Netzwerk fehlschlägt, versuche aus Cache
+          return caches.match(event.request)
+            .then(cachedResponse => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // Fallback auf index.html für Navigation
+              if (event.request.mode === 'navigate') {
+                return caches.match(`${BASE_PATH}index.html`);
+              }
+            });
+        })
+    );
+    return;
+  }
+
+  // Cache First Strategy für statische Assets (Bilder, etc.)
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
+      .then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
 
-        // Clone the request because it's a stream and can only be consumed once
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          response => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type === 'error') {
-              return response;
-            }
-            
-            // Clone the response because it's a stream and can only be consumed once
-            const responseToCache = response.clone();
-
-            // Only cache GET requests
-            if (event.request.method === 'GET') {
+        return fetch(event.request)
+          .then(response => {
+            // Nur erfolgreiche Antworten cachen
+            if (response && response.status === 200) {
+              const responseToCache = response.clone();
               caches.open(CACHE_NAME)
                 .then(cache => {
                   cache.put(event.request, responseToCache);
-                })
-                .catch(err => {
-                  console.error('Cache put failed:', err);
                 });
             }
-
             return response;
-          }
-        ).catch(err => {
-          console.error('Fetch failed:', err);
-          // Return a fallback response if available
-          return caches.match(`${BASE_PATH}index.html`);
-        });
+          })
+          .catch(err => {
+            console.error('[SW] Fetch failed:', err);
+            // Fallback auf index.html für Navigation
+            if (event.request.mode === 'navigate') {
+              return caches.match(`${BASE_PATH}index.html`);
+            }
+          });
       })
   );
 });
 
+// Message Event - für Kommunikation mit der App
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({ version: SW_VERSION });
+  }
+});
