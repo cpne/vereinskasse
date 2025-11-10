@@ -1,0 +1,5 @@
+{
+  "name": "Vereins-Kasse",
+  "description": "Eine einfache Kassen-App für Vereine, um Produkte zu verwalten, Verkäufe zu tätigen und tägliche Berichte zu erstellen. Optimiert für die Verwendung auf Tablets bei Veranstaltungen.",
+  "requestFramePermissions": []
+}
