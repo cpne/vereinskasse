@@ -93,7 +93,7 @@ const POSView: React.FC<POSViewProps> = ({ categories, products, addTransaction,
         <div className="flex flex-col items-center justify-center h-full text-center">
             <CalendarDaysIcon className="h-16 w-16 text-gray-600 mb-4"/>
             <h2 className="text-2xl font-bold text-white">Keine Veranstaltung aktiv</h2>
-            <p className="text-gray-400 mt-2">Bitte wählen Sie eine aktive Veranstaltung in der Kopfleiste oder legen Sie eine neue in der Verwaltung an.</p>
+            <p className="text-gray-400 mt-2">Bitte wählen Sie eine aktive Veranstaltung in den Einstellungen oder legen Sie eine neue in der Verwaltung an.</p>
         </div>
     );
   }

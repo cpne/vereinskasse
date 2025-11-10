@@ -35,7 +35,7 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
         <div className="flex flex-col items-center justify-center h-full text-center">
             <CalendarDaysIcon className="h-16 w-16 text-gray-600 mb-4"/>
             <h2 className="text-2xl font-bold text-white">Keine Veranstaltung aktiv</h2>
-            <p className="text-gray-400 mt-2">Wählen Sie eine Veranstaltung aus, um die Bestellungen anzuzeigen.</p>
+            <p className="text-gray-400 mt-2">Wählen Sie eine Veranstaltung in den Einstellungen aus, um die Bestellungen anzuzeigen.</p>
         </div>
     );
   }
