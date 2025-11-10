@@ -26,6 +26,9 @@
 
 3. **Gebaute Dateien ins Root kopieren**
    ```bash
+   # WICHTIG: Die gebaute index.html überschreibt die Entwicklungsversion
+   # Nach dem Deployment kann die index.html wieder auf die Entwicklungsversion
+   # zurückgesetzt werden (siehe Schritt 4)
    rm -rf assets logo.svg manifest.json sw.js
    cp dist/index.html index.html
    cp -r dist/assets .
@@ -44,6 +47,14 @@
 5. **GitHub Pages**
    - GitHub Pages lädt automatisch die neuen Dateien
    - Die App wird bei allen Nutzern automatisch aktualisiert (siehe Update-Mechanismus unten)
+
+**Hinweis für lokale Entwicklung:**
+- Nach dem Deployment enthält `index.html` die gebaute Version
+- Für lokale Entwicklung (`npm run dev`) sollte `index.html` auf die Entwicklungsversion zeigen:
+  ```html
+  <script type="module" src="/src/index.tsx"></script>
+  ```
+- Dies ist optional - Vite kann auch mit der gebauten Version arbeiten, aber für Hot-Reload ist die Entwicklungsversion besser
 
 ## Update-Mechanismus
 
