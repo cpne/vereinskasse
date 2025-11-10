@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Category, Product, Event, Transaction, BackupData } from '../types';
 import { PlusIcon, TrashIcon, PencilIcon, CalendarDaysIcon, XMarkIcon, ListBulletIcon } from '@heroicons/react/24/outline';
+import { useTheme } from '../hooks/useTheme';
 
 interface ProductManagementProps {
   categories: Category[];
@@ -31,7 +32,8 @@ const ProductAssignmentModal: React.FC<{
     eventProducts: string[];
     onSave: (productIds: string[]) => void;
     onClose: () => void;
-}> = ({ event, allProducts, eventProducts: initialEventProducts, onSave, onClose }) => {
+    isDarkMode: boolean;
+}> = ({ event, allProducts, eventProducts: initialEventProducts, onSave, onClose, isDarkMode }) => {
     const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set(initialEventProducts));
 
     const handleToggleProduct = (productId: string) => {
@@ -53,28 +55,28 @@ const ProductAssignmentModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-lg shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
-                <header className="p-4 border-b border-gray-700 flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-white">Produkte für "{event.name}" zuweisen</h2>
-                    <button onClick={onClose} className="p-1 text-gray-400 hover:text-white"><XMarkIcon className="h-6 w-6" /></button>
+            <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]`}>
+                <header className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-between items-center`}>
+                    <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Produkte für "{event.name}" zuweisen</h2>
+                    <button onClick={onClose} className={`p-1 ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}><XMarkIcon className="h-6 w-6" /></button>
                 </header>
                 <main className="p-6 overflow-y-auto">
                     <div className="space-y-2">
                         {allProducts.map(product => (
-                            <label key={product.id} className="flex items-center bg-gray-700 p-3 rounded-md cursor-pointer hover:bg-gray-600">
+                            <label key={product.id} className={`flex items-center ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'} p-3 rounded-md cursor-pointer`}>
                                 <input
                                     type="checkbox"
                                     checked={selectedProductIds.has(product.id)}
                                     onChange={() => handleToggleProduct(product.id)}
-                                    className="h-5 w-5 rounded bg-gray-900 border-gray-600 text-indigo-600 focus:ring-indigo-500"
+                                    className={`h-5 w-5 rounded ${isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-white border-gray-300'} text-indigo-600 focus:ring-indigo-500`}
                                 />
-                                <span className="ml-4 font-semibold text-white">{product.name}</span>
-                                <span className="ml-auto text-gray-400">{product.price.toFixed(2)} €</span>
+                                <span className={`ml-4 font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{product.name}</span>
+                                <span className={`ml-auto ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{product.price.toFixed(2)} €</span>
                             </label>
                         ))}
                     </div>
                 </main>
-                <footer className="p-4 border-t border-gray-700 text-right">
+                <footer className={`p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} text-right`}>
                     <button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">
                         Speichern
                     </button>
@@ -87,6 +89,7 @@ const ProductAssignmentModal: React.FC<{
 
 const ProductManagement: React.FC<ProductManagementProps> = (props) => {
   const { categories, setCategories, products, setProducts, events, setEvents, activeEventId, setActiveEventId, eventProducts, setEventProducts, setTransactions } = props;
+  const { isDarkMode } = useTheme();
 
   // Component State
   const [newCategory, setNewCategory] = useState('');
@@ -227,30 +230,31 @@ const ProductManagement: React.FC<ProductManagementProps> = (props) => {
             eventProducts={eventProducts[managingEvent.id] || []}
             onSave={(productIds) => handleUpdateEventProducts(managingEvent, productIds)}
             onClose={() => setManagingEvent(null)}
+            isDarkMode={isDarkMode}
         />
       )}
 
       {/* Event Management */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><CalendarDaysIcon className="h-6 w-6"/>Veranstaltungen verwalten</h2>
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-lg`}>
+        <h2 className={`text-xl font-bold mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}><CalendarDaysIcon className="h-6 w-6"/>Veranstaltungen verwalten</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <input type="text" value={newEvent.name} onChange={e => setNewEvent({...newEvent, name: e.target.value})} placeholder="Name der Veranstaltung" className="md:col-span-2 bg-gray-700 rounded-md px-3 py-2"/>
-          <input type="date" value={newEvent.date} onChange={e => setNewEvent({...newEvent, date: e.target.value})} className="bg-gray-700 rounded-md px-3 py-2"/>
+          <input type="text" value={newEvent.name} onChange={e => setNewEvent({...newEvent, name: e.target.value})} placeholder="Name der Veranstaltung" className={`md:col-span-2 ${isDarkMode ? 'bg-gray-700 text-white placeholder-gray-400' : 'bg-gray-100 text-gray-900 placeholder-gray-500'} rounded-md px-3 py-2`}/>
+          <input type="date" value={newEvent.date} onChange={e => setNewEvent({...newEvent, date: e.target.value})} className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'} rounded-md px-3 py-2`}/>
         </div>
         <button onClick={handleAddEvent} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2">
             <PlusIcon className="h-5 w-5" /> Veranstaltung hinzufügen
         </button>
         <ul className="space-y-2 mt-6">
             {events.map(event => (
-                <li key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-700 p-3 rounded-md gap-2">
+                <li key={event.id} className={`flex flex-col sm:flex-row items-start sm:items-center justify-between ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-md gap-2`}>
                     <div>
-                        <span className="font-semibold">{event.name}</span>
-                        <span className="text-gray-400 ml-2 text-sm">{new Date(event.date).toLocaleDateString('de-DE')}</span>
+                        <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{event.name}</span>
+                        <span className={`ml-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{new Date(event.date).toLocaleDateString('de-DE')}</span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                        <button onClick={() => setManagingEvent(event)} className="bg-gray-600 hover:bg-gray-500 text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center gap-1"><ListBulletIcon className="h-4 w-4"/>Produkte</button>
+                        <button onClick={() => setManagingEvent(event)} className={`${isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-gray-300 hover:bg-gray-400'} text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center gap-1`}><ListBulletIcon className="h-4 w-4"/>Produkte</button>
                         <button onClick={() => setActiveEventId(event.id)} disabled={activeEventId === event.id} className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-3 rounded-lg disabled:bg-gray-500 disabled:cursor-not-allowed">Aktivieren</button>
-                        <button onClick={() => handleDeleteEvent(event.id)} className="p-2 text-gray-400 hover:text-red-400"><TrashIcon className="h-5 w-5"/></button>
+                        <button onClick={() => handleDeleteEvent(event.id)} className={`p-2 ${isDarkMode ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-500'}`}><TrashIcon className="h-5 w-5"/></button>
                     </div>
                 </li>
             ))}
@@ -258,21 +262,21 @@ const ProductManagement: React.FC<ProductManagementProps> = (props) => {
       </div>
 
       {/* Category Management */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold mb-4">Stamm-Kategorien</h2>
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-lg`}>
+        <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Stamm-Kategorien</h2>
         <div className="flex gap-4 mb-4">
-          <input type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Neue Kategorie" className="flex-grow bg-gray-700 rounded-md px-3 py-2"/>
+          <input type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Neue Kategorie" className={`flex-grow ${isDarkMode ? 'bg-gray-700 text-white placeholder-gray-400' : 'bg-gray-100 text-gray-900 placeholder-gray-500'} rounded-md px-3 py-2`}/>
           <button onClick={handleAddCategory} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2">
             <PlusIcon className="h-5 w-5" /> {editingCategory ? 'Speichern' : 'Hinzufügen'}
           </button>
         </div>
         <ul className="space-y-2">
           {categories.map(cat => (
-            <li key={cat.id} className="flex items-center justify-between bg-gray-700 p-3 rounded-md">
-              <span>{cat.name}</span>
+            <li key={cat.id} className={`flex items-center justify-between ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-md`}>
+              <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>{cat.name}</span>
               <div className="space-x-2">
-                <button onClick={() => { setEditingCategory(cat); setNewCategory(cat.name);}} className="p-2 text-gray-400 hover:text-yellow-400"><PencilIcon className="h-5 w-5"/></button>
-                <button onClick={() => handleDeleteCategory(cat.id)} className="p-2 text-gray-400 hover:text-red-400"><TrashIcon className="h-5 w-5"/></button>
+                <button onClick={() => { setEditingCategory(cat); setNewCategory(cat.name);}} className={`p-2 ${isDarkMode ? 'text-gray-400 hover:text-yellow-400' : 'text-gray-600 hover:text-yellow-600'}`}><PencilIcon className="h-5 w-5"/></button>
+                <button onClick={() => handleDeleteCategory(cat.id)} className={`p-2 ${isDarkMode ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-500'}`}><TrashIcon className="h-5 w-5"/></button>
               </div>
             </li>
           ))}
@@ -280,20 +284,20 @@ const ProductManagement: React.FC<ProductManagementProps> = (props) => {
       </div>
 
       {/* Product Management */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold mb-4">Stamm-Produkte</h2>
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-lg`}>
+        <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Stamm-Produkte</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end">
-          <input type="text" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} placeholder="Produktname" className="md:col-span-2 bg-gray-700 rounded-md px-3 py-2" />
-          <input type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} placeholder="Preis (€)" className="bg-gray-700 rounded-md px-3 py-2" />
-          <select value={newProduct.categoryId} onChange={e => setNewProduct({...newProduct, categoryId: e.target.value})} className="bg-gray-700 rounded-md px-3 py-2">
+          <input type="text" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} placeholder="Produktname" className={`md:col-span-2 ${isDarkMode ? 'bg-gray-700 text-white placeholder-gray-400' : 'bg-gray-100 text-gray-900 placeholder-gray-500'} rounded-md px-3 py-2`} />
+          <input type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} placeholder="Preis (€)" className={`${isDarkMode ? 'bg-gray-700 text-white placeholder-gray-400' : 'bg-gray-100 text-gray-900 placeholder-gray-500'} rounded-md px-3 py-2`} />
+          <select value={newProduct.categoryId} onChange={e => setNewProduct({...newProduct, categoryId: e.target.value})} className={`${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'} rounded-md px-3 py-2`}>
             <option value="">Kategorie wählen</option>
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <div className="md:col-span-4">
-            <label className="block text-sm font-medium text-gray-400 mb-1">Produktbild</label>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Produktbild</label>
             <div className="flex items-center gap-4">
                 {newProduct.image && <img src={newProduct.image} alt="Vorschau" className="h-16 w-16 rounded-md object-cover"/>}
-                <input type="file" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-gray-200 hover:file:bg-gray-500"/>
+                <input type="file" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} className={`block w-full text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold ${isDarkMode ? 'file:bg-gray-600 file:text-gray-200 hover:file:bg-gray-500' : 'file:bg-gray-300 file:text-gray-900 hover:file:bg-gray-400'}`}/>
                 {newProduct.image && <button onClick={() => setNewProduct({...newProduct, image: undefined})} className="p-2 text-red-500 hover:text-red-400"><TrashIcon className="h-5 w-5"/></button>}
             </div>
           </div>
@@ -303,18 +307,18 @@ const ProductManagement: React.FC<ProductManagementProps> = (props) => {
         </button>
         <ul className="space-y-2 mt-6">
           {products.map(prod => (
-            <li key={prod.id} className="flex items-center justify-between bg-gray-700 p-3 rounded-md">
+            <li key={prod.id} className={`flex items-center justify-between ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-md`}>
               <div className="flex items-center gap-4">
-                {prod.image ? <img src={prod.image} alt={prod.name} className="h-10 w-10 rounded-md object-cover flex-shrink-0" /> : <div className="h-10 w-10 rounded-md bg-gray-600 flex-shrink-0"></div>}
+                {prod.image ? <img src={prod.image} alt={prod.name} className="h-10 w-10 rounded-md object-cover flex-shrink-0" /> : <div className={`h-10 w-10 rounded-md ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'} flex-shrink-0`}></div>}
                 <div>
-                    <span className="font-semibold">{prod.name}</span>
-                    <span className="text-gray-400 ml-2">{prod.price.toFixed(2)} €</span>
-                    <span className="text-sm text-indigo-400 ml-2 block">({categories.find(c=>c.id === prod.categoryId)?.name || 'N/A'})</span>
+                    <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{prod.name}</span>
+                    <span className={`ml-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{prod.price.toFixed(2)} €</span>
+                    <span className={`text-sm ml-2 block ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>({categories.find(c=>c.id === prod.categoryId)?.name || 'N/A'})</span>
                 </div>
               </div>
               <div className="space-x-2">
-                <button onClick={() => { setEditingProduct(prod); setNewProduct({ name: prod.name, price: prod.price.toString(), categoryId: prod.categoryId, image: prod.image });}} className="p-2 text-gray-400 hover:text-yellow-400"><PencilIcon className="h-5 w-5"/></button>
-                <button onClick={() => handleDeleteProduct(prod.id)} className="p-2 text-gray-400 hover:text-red-400"><TrashIcon className="h-5 w-5"/></button>
+                <button onClick={() => { setEditingProduct(prod); setNewProduct({ name: prod.name, price: prod.price.toString(), categoryId: prod.categoryId, image: prod.image });}} className={`p-2 ${isDarkMode ? 'text-gray-400 hover:text-yellow-400' : 'text-gray-600 hover:text-yellow-600'}`}><PencilIcon className="h-5 w-5"/></button>
+                <button onClick={() => handleDeleteProduct(prod.id)} className={`p-2 ${isDarkMode ? 'text-gray-400 hover:text-red-400' : 'text-gray-600 hover:text-red-500'}`}><TrashIcon className="h-5 w-5"/></button>
               </div>
             </li>
           ))}
@@ -322,12 +326,12 @@ const ProductManagement: React.FC<ProductManagementProps> = (props) => {
       </div>
 
       {/* Data Import/Export */}
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold mb-4">Daten-Export & -Import</h2>
-        <p className="text-gray-400 mb-4">
-            Hier können Sie die Daten aus einer Backup-Datei wiederherstellen. Der Export (Backup speichern) erfolgt über das Download-Symbol in der Kopfleiste.
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-lg`}>
+        <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Daten-Export & -Import</h2>
+        <p className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Hier können Sie die Daten aus einer Backup-Datei wiederherstellen. Der Export (Backup speichern) erfolgt über die Einstellungen.
             <br />
-            <strong className="text-yellow-400">Achtung:</strong> Der Import überschreibt alle aktuell in der App gespeicherten Daten unwiderruflich.
+            <strong className={isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}>Achtung:</strong> Der Import überschreibt alle aktuell in der App gespeicherten Daten unwiderruflich.
         </p>
         <div>
             <input
