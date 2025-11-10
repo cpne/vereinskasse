@@ -1,20 +1,71 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Vereins-Kasse
 
-# Run and deploy your AI Studio app
+Eine einfache Kassen-App für Vereine, optimiert für die Offline-Nutzung auf Tablets.
 
-This contains everything you need to run your app locally.
+## 🚀 Schnellstart
 
-View your app in AI Studio: https://ai.studio/apps/drive/18V3q1JD1yhMLIBX0YMNMGuS9uYoZiGVX
+### Lokale Entwicklung
 
-## Run Locally
+**Voraussetzungen:** Node.js
 
-**Prerequisites:**  Node.js
+1. Abhängigkeiten installieren:
+   ```bash
+   npm install
+   ```
 
+2. App starten:
+   ```bash
+   npm run dev
+   ```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+3. App im Browser öffnen:
+   ```
+   http://localhost:3000
+   ```
+
+## 📦 Deployment
+
+**WICHTIG:** Für Deployment-Anweisungen und Update-Prozess siehe [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+### Kurzfassung
+
+1. Code-Änderungen vornehmen
+2. Service Worker Version in `public/sw.js` erhöhen (bei Änderungen)
+3. Build ausführen: `npm run build`
+4. Gebaute Dateien ins Root kopieren
+5. Committen und pushen: `git push origin main`
+
+Siehe [DEPLOYMENT.md](./DEPLOYMENT.md) für detaillierte Anweisungen.
+
+## 🔄 Updates
+
+Die App aktualisiert sich automatisch bei allen Nutzern:
+- Service Worker Version muss bei jedem Update erhöht werden
+- Updates werden automatisch erkannt und aktiviert
+- Alte Caches werden automatisch gelöscht
+
+Siehe [DEPLOYMENT.md](./DEPLOYMENT.md) für Details zum Update-Mechanismus.
+
+## 🌐 GitHub Pages
+
+- **Repository:** https://github.com/cpne/vereinskasse
+- **Live:** https://cpne.github.io/vereinskasse/
+
+## 📱 PWA Features
+
+- Offline-Funktionalität
+- Installierbar auf Home-Bildschirm
+- Automatische Updates
+- Service Worker für Caching
+
+## 🛠️ Technologie-Stack
+
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Service Worker (PWA)
+
+## 📄 Lizenz
+
+Dieses Projekt ist für den internen Gebrauch bestimmt.
