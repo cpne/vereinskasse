@@ -134,6 +134,14 @@ const App: React.FC = () => {
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
             onExportData={handleExportData}
+            onImportData={(data) => {
+              setCategories(data.categories);
+              setProducts(data.products);
+              setEvents(data.events);
+              setTransactions(data.transactions);
+              setActiveEventId(data.activeEventId);
+              setEventProducts(data.eventProducts);
+            }}
           />
         );
       case 'pos':

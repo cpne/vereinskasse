@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Category, Product, Event, Transaction, BackupData } from '../types';
+import { Category, Product, Event, Transaction } from '../types';
 import { PlusIcon, TrashIcon, PencilIcon, CalendarDaysIcon, XMarkIcon, ListBulletIcon } from '@heroicons/react/24/outline';
 import { useTheme } from '../hooks/useTheme';
 
@@ -184,42 +184,6 @@ const ProductManagement: React.FC<ProductManagementProps> = (props) => {
     }
   };
 
-  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const text = e.target?.result;
-            if (typeof text !== 'string') throw new Error("File could not be read as text");
-
-            const data: BackupData = JSON.parse(text);
-
-            if (!data.categories || !data.products || !data.events || !data.transactions || data.eventProducts === undefined || data.activeEventId === undefined) {
-                throw new Error("Ungültige Backup-Datei. Wichtige Felder fehlen.");
-            }
-
-            if (window.confirm("Möchten Sie wirklich die Daten aus der Datei importieren? Alle aktuellen Daten in der App werden unwiderruflich überschrieben!")) {
-                setCategories(data.categories);
-                setProducts(data.products);
-                setEvents(data.events);
-                setTransactions(data.transactions);
-                setActiveEventId(data.activeEventId);
-                setEventProducts(data.eventProducts);
-
-                alert("Daten erfolgreich importiert. Die App wird neu geladen, um die Änderungen zu übernehmen.");
-                window.location.reload();
-            }
-        } catch (error) {
-            console.error("Fehler beim Importieren der Daten:", error);
-            alert(`Fehler beim Import: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
-        } finally {
-            event.target.value = '';
-        }
-    };
-    reader.readAsText(file);
-  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -325,30 +289,6 @@ const ProductManagement: React.FC<ProductManagementProps> = (props) => {
         </ul>
       </div>
 
-      {/* Data Import/Export */}
-      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-lg`}>
-        <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Daten-Export & -Import</h2>
-        <p className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Hier können Sie die Daten aus einer Backup-Datei wiederherstellen. Der Export (Backup speichern) erfolgt über die Einstellungen.
-            <br />
-            <strong className={isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}>Achtung:</strong> Der Import überschreibt alle aktuell in der App gespeicherten Daten unwiderruflich.
-        </p>
-        <div>
-            <input
-                type="file"
-                id="import-file-input"
-                className="hidden"
-                accept=".json"
-                onChange={handleImportData}
-            />
-            <label 
-                htmlFor="import-file-input"
-                className="inline-block cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
-            >
-                Backup-Datei importieren
-            </label>
-        </div>
-      </div>
     </div>
   );
 };

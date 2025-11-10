@@ -1,6 +1,6 @@
 import React from 'react';
-import { Event } from '../types';
-import { MoonIcon, SunIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { Event, BackupData, Category, Product, Transaction } from '../types';
+import { MoonIcon, SunIcon, ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 interface SettingsViewProps {
   events: Event[];
@@ -9,6 +9,7 @@ interface SettingsViewProps {
   isDarkMode: boolean;
   setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
   onExportData: () => void;
+  onImportData: (data: BackupData) => void;
 }
 
 const SettingsView: React.FC<SettingsViewProps> = ({
@@ -18,7 +19,38 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   isDarkMode,
   setIsDarkMode,
   onExportData,
+  onImportData,
 }) => {
+  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const text = e.target?.result;
+            if (typeof text !== 'string') throw new Error("File could not be read as text");
+
+            const data: BackupData = JSON.parse(text);
+
+            if (!data.categories || !data.products || !data.events || !data.transactions || data.eventProducts === undefined || data.activeEventId === undefined) {
+                throw new Error("Ungültige Backup-Datei. Wichtige Felder fehlen.");
+            }
+
+            if (window.confirm("Möchten Sie wirklich die Daten aus der Datei importieren? Alle aktuellen Daten in der App werden unwiderruflich überschrieben!")) {
+                onImportData(data);
+                alert("Daten erfolgreich importiert. Die App wird neu geladen, um die Änderungen zu übernehmen.");
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error("Fehler beim Importieren der Daten:", error);
+            alert(`Fehler beim Import: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+        } finally {
+            event.target.value = '';
+        }
+    };
+    reader.readAsText(file);
+  };
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Einstellungen</h1>
@@ -93,24 +125,57 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 
       {/* Backup & Export */}
       <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-lg`}>
-        <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Daten-Export</h2>
+        <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Daten-Export & -Import</h2>
         <p className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          Erstellen Sie eine Sicherungskopie aller Daten (Kategorien, Produkte, Transaktionen, Veranstaltungen).
+          Erstellen Sie eine Sicherungskopie aller Daten (Kategorien, Produkte, Transaktionen, Veranstaltungen) oder stellen Sie Daten aus einer Backup-Datei wieder her.
         </p>
-        <button
-          onClick={onExportData}
-          className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-colors ${
-            isDarkMode
-              ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-          }`}
-        >
-          <ArrowDownTrayIcon className="h-5 w-5" />
-          Backup-Datei herunterladen
-        </button>
-        <p className={`mt-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          Die Backup-Datei kann später in der Verwaltung wieder importiert werden.
-        </p>
+        
+        {/* Export */}
+        <div className="mb-6">
+          <button
+            onClick={onExportData}
+            className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-colors ${
+              isDarkMode
+                ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+            }`}
+          >
+            <ArrowDownTrayIcon className="h-5 w-5" />
+            Backup-Datei herunterladen
+          </button>
+          <p className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Erstellen Sie eine Sicherungskopie aller Daten.
+          </p>
+        </div>
+
+        {/* Import */}
+        <div className="border-t pt-6" style={{ borderColor: isDarkMode ? '#374151' : '#e5e7eb' }}>
+          <p className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Hier können Sie die Daten aus einer Backup-Datei wiederherstellen.
+            <br />
+            <strong className={isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}>Achtung:</strong> Der Import überschreibt alle aktuell in der App gespeicherten Daten unwiderruflich.
+          </p>
+          <div>
+            <input
+              type="file"
+              id="import-file-input"
+              className="hidden"
+              accept=".json"
+              onChange={handleImportData}
+            />
+            <label
+              htmlFor="import-file-input"
+              className={`inline-flex items-center gap-2 cursor-pointer px-4 py-3 rounded-lg font-semibold transition-colors ${
+                isDarkMode
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              <ArrowUpTrayIcon className="h-5 w-5" />
+              Backup-Datei importieren
+            </label>
+          </div>
+        </div>
       </div>
     </div>
   );
