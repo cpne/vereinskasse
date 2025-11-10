@@ -2,13 +2,13 @@
   "name": "Vereins-Kasse",
   "short_name": "Kasse",
   "description": "Eine einfache Kassen-App für Vereine, optimiert für die Offline-Nutzung auf Tablets.",
-  "start_url": "/vereins-kasse/",
+  "start_url": "/vereinskasse/",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#111827",
   "icons": [
     {
-      "src": "/vereins-kasse/logo.svg",
+      "src": "/vereinskasse/logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

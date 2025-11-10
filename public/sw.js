@@ -1,5 +1,5 @@
 const CACHE_NAME = 'vereinskasse-cache-v2';
-const BASE_PATH = '/vereins-kasse/';
+const BASE_PATH = '/vereinskasse/';
 
 // URLs to cache - these will be the built assets
 const urlsToCache = [
