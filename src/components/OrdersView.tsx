@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Transaction, PaymentMethod, Event } from '../types';
 import { CreditCardIcon, BanknotesIcon, ChevronDownIcon, CalendarDaysIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { useTheme } from '../hooks/useTheme';
 
 interface OrdersViewProps {
   transactions: Transaction[];
@@ -9,6 +10,7 @@ interface OrdersViewProps {
 }
 
 const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, activeEvent }) => {
+  const { isDarkMode } = useTheme();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingTransaction, setCancellingTransaction] = useState<Transaction | null>(null);
 
@@ -33,9 +35,9 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
   if (!activeEvent) {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center">
-            <CalendarDaysIcon className="h-16 w-16 text-gray-600 mb-4"/>
-            <h2 className="text-2xl font-bold text-white">Keine Veranstaltung aktiv</h2>
-            <p className="text-gray-400 mt-2">Wählen Sie eine Veranstaltung in den Einstellungen aus, um die Bestellungen anzuzeigen.</p>
+            <CalendarDaysIcon className={`h-16 w-16 mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}/>
+            <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Keine Veranstaltung aktiv</h2>
+            <p className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Wählen Sie eine Veranstaltung in den Einstellungen aus, um die Bestellungen anzuzeigen.</p>
         </div>
     );
   }
@@ -43,8 +45,8 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
   if (transactions.length === 0) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-white">Keine Bestellungen vorhanden</h2>
-        <p className="text-gray-400 mt-2">Für die Veranstaltung "{activeEvent.name}" wurden noch keine Bestellungen abgeschlossen.</p>
+        <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Keine Bestellungen vorhanden</h2>
+        <p className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Für die Veranstaltung "{activeEvent.name}" wurden noch keine Bestellungen abgeschlossen.</p>
       </div>
     );
   }
@@ -52,13 +54,13 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
   return (
     <>
       <div className="max-w-4xl mx-auto space-y-4">
-        <h1 className="text-3xl font-bold text-white mb-6">Bestellübersicht für "{activeEvent.name}"</h1>
+        <h1 className={`text-3xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Bestellübersicht für "{activeEvent.name}"</h1>
         {reversedTransactions.map((t) => {
           const isExpanded = expandedId === t.id;
           const isCancelled = t.status === 'CANCELLED';
 
           return (
-            <div key={t.id} className={`bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-opacity ${isCancelled ? 'opacity-50' : ''}`}>
+            <div key={t.id} className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-lg overflow-hidden transition-opacity ${isCancelled ? 'opacity-50' : ''}`}>
               <div className="flex items-center justify-between p-4">
                   <div className="flex items-center gap-4 flex-1">
                     {t.paymentMethod === PaymentMethod.CARD ? (
@@ -67,10 +69,10 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
                       <BanknotesIcon className="h-6 w-6 text-green-400 flex-shrink-0" />
                     )}
                     <div>
-                      <p className={`font-bold text-lg text-white ${isCancelled ? 'line-through' : ''}`}>
+                      <p className={`font-bold text-lg ${isCancelled ? 'line-through' : ''} ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         {t.total.toFixed(2)} €
                       </p>
-                      <p className="text-sm text-gray-400">
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         {new Date(t.date).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
@@ -87,7 +89,7 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
                     <button 
                         onClick={() => setCancellingTransaction(t)}
                         disabled={isCancelled}
-                        className="p-2 text-gray-400 hover:text-red-400 disabled:text-gray-600 disabled:cursor-not-allowed"
+                        className={`p-2 ${isDarkMode ? 'text-gray-400 hover:text-red-400 disabled:text-gray-600' : 'text-gray-600 hover:text-red-500 disabled:text-gray-400'} disabled:cursor-not-allowed`}
                         aria-label="Bestellung stornieren"
                     >
                         <XCircleIcon className="h-6 w-6"/>
@@ -95,7 +97,7 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
                     <button
                         onClick={() => toggleExpand(t.id)}
                         disabled={isCancelled}
-                        className="p-2 text-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed"
+                        className={`p-2 ${isDarkMode ? 'text-gray-400 disabled:text-gray-600' : 'text-gray-600 disabled:text-gray-400'} disabled:cursor-not-allowed`}
                         aria-label="Details anzeigen"
                     >
                       <ChevronDownIcon
@@ -105,11 +107,11 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
                   </div>
               </div>
               {isExpanded && !isCancelled && (
-                <div className="bg-gray-800/50 px-4 pb-4 pt-2 border-t border-gray-700">
-                  <h4 className="font-semibold text-gray-300 mb-2">Bestellte Artikel:</h4>
+                <div className={`${isDarkMode ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'} px-4 pb-4 pt-2 border-t`}>
+                  <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Bestellte Artikel:</h4>
                   <ul className="space-y-2">
                     {t.items.map((item) => (
-                      <li key={item.productId} className="flex justify-between items-center text-gray-300">
+                      <li key={item.productId} className={`flex justify-between items-center ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                         <span>{item.quantity} x {item.name}</span>
                         <span>{(item.quantity * item.price).toFixed(2)} €</span>
                       </li>
@@ -125,15 +127,19 @@ const OrdersView: React.FC<OrdersViewProps> = ({ transactions, setTransactions, 
       {/* Cancellation Confirmation Modal */}
       {cancellingTransaction && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-6 w-full max-w-sm text-center">
-            <h2 className="text-2xl font-bold text-white mb-2">Bestellung stornieren?</h2>
-            <p className="text-gray-300 mb-4">
-              Möchten Sie die Bestellung über <span className="font-bold text-white">{cancellingTransaction.total.toFixed(2)} €</span> wirklich stornieren? Diese Aktion kann nicht rückgängig gemacht werden.
+          <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-lg shadow-2xl p-6 w-full max-w-sm text-center`}>
+            <h2 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Bestellung stornieren?</h2>
+            <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+              Möchten Sie die Bestellung über <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{cancellingTransaction.total.toFixed(2)} €</span> wirklich stornieren? Diese Aktion kann nicht rückgängig gemacht werden.
             </p>
             <div className="flex justify-center gap-4 mt-6">
               <button
                 onClick={() => setCancellingTransaction(null)}
-                className="px-6 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className={`px-6 py-2 font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 ${
+                  isDarkMode
+                    ? 'bg-gray-600 text-white hover:bg-gray-500 focus:ring-gray-400'
+                    : 'bg-gray-300 text-gray-900 hover:bg-gray-400 focus:ring-gray-400'
+                }`}
               >
                 Abbrechen
               </button>
