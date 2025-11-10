@@ -1,5 +1,5 @@
 // Service Worker Version - wird bei jedem Update erhöht
-const SW_VERSION = '7';
+const SW_VERSION = '9';
 const CACHE_NAME = `vereinskasse-cache-v${SW_VERSION}`;
 const BASE_PATH = '/vereinskasse/';
 
