@@ -6,7 +6,7 @@ import ProductManagement from './components/ProductManagement';
 import POSView from './components/POSView';
 import DailyReport from './components/DailyReport';
 import OrdersView from './components/OrdersView';
-import { ShoppingCartIcon, Cog6ToothIcon, ChartBarIcon, ClipboardDocumentListIcon, ArrowDownTrayIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import { ShoppingCartIcon, Cog6ToothIcon, ChartBarIcon, ClipboardDocumentListIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 import SettingsView from './components/SettingsView';
 
 type View = 'pos' | 'admin' | 'report' | 'orders' | 'settings';
@@ -133,6 +133,7 @@ const App: React.FC = () => {
             setActiveEventId={setActiveEventId}
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
+            onExportData={handleExportData}
           />
         );
       case 'pos':
@@ -170,14 +171,6 @@ const App: React.FC = () => {
                       {events.find(e => e.id === activeEventId)?.name}
                     </span>
                   )}
-                  <button
-                      onClick={handleExportData}
-                      className={`p-2 ${isDarkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'} rounded-full transition-colors`}
-                      title="Daten exportieren (Backup)"
-                      aria-label="Daten exportieren (Backup)"
-                  >
-                      <ArrowDownTrayIcon className="h-6 w-6" />
-                  </button>
               </div>
               <div className={`flex space-x-2 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'} p-1 rounded-lg`}>
                   <NavButton activeView={view} targetView="pos" setView={setView} icon={ShoppingCartIcon} isDarkMode={isDarkMode}>Kasse</NavButton>

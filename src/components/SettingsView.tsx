@@ -1,6 +1,6 @@
 import React from 'react';
 import { Event } from '../types';
-import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
+import { MoonIcon, SunIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 interface SettingsViewProps {
   events: Event[];
@@ -8,6 +8,7 @@ interface SettingsViewProps {
   setActiveEventId: React.Dispatch<React.SetStateAction<string | null>>;
   isDarkMode: boolean;
   setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  onExportData: () => void;
 }
 
 const SettingsView: React.FC<SettingsViewProps> = ({
@@ -16,6 +17,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   setActiveEventId,
   isDarkMode,
   setIsDarkMode,
+  onExportData,
 }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -86,6 +88,28 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           {isDarkMode
             ? 'Das dunkle Design ist aktiviert und reduziert die Belastung der Augen bei wenig Licht.'
             : 'Das helle Design ist aktiviert und bietet bessere Lesbarkeit bei Tageslicht.'}
+        </p>
+      </div>
+
+      {/* Backup & Export */}
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-lg`}>
+        <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Daten-Export</h2>
+        <p className={`mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          Erstellen Sie eine Sicherungskopie aller Daten (Kategorien, Produkte, Transaktionen, Veranstaltungen).
+        </p>
+        <button
+          onClick={onExportData}
+          className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-colors ${
+            isDarkMode
+              ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+          }`}
+        >
+          <ArrowDownTrayIcon className="h-5 w-5" />
+          Backup-Datei herunterladen
+        </button>
+        <p className={`mt-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          Die Backup-Datei kann später in der Verwaltung wieder importiert werden.
         </p>
       </div>
     </div>
